@@ -13,11 +13,13 @@ async function download(
   await mkdir(destDir, { recursive: true });
   const html = await fetch(url).then((res) => res.text());
   const doc = load(html);
-  const objectName = doc("#reviewMdsDownloadObjectName")
-    .attr("value")!
-    .replaceAll(" ", "%20");
-  assert(objectName !== undefined, "objectName is not found");
-
+  const objectNameUnescaped = doc("#reviewMdsDownloadObjectName").attr("value");
+  assert(objectNameUnescaped !== undefined, "objectName is not found");
+  const objectName = objectNameUnescaped
+    .split("/")
+    .map((it) => encodeURIComponent(it))
+    .join("/");
+  console.log({ objectName, objectNameUnescaped });
   const urlGenResponse = await fetch(
     "https://reviewmaydocsach.com/wp-json/reviewmds-download/v1/link?_locale=user",
     {
@@ -41,7 +43,7 @@ async function download(
 
 async function main() {
   const targetUrl =
-    "https://reviewmaydocsach.com/download-file/aq-chi-so-vuot-kho-paul-g-stoltz";
+    "https://reviewmaydocsach.com/download-file/pollyanna-mat-troi-da-lon-khon-eleanor-h-porter-han-bang-vu-dich-4";
   await download(targetUrl);
 }
 
